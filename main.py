@@ -3,28 +3,28 @@ import argparse
 from domain.video import Video
 import os
 
+from infrastructure.llama_qa_engine import LlamaQaEngine
+from infrastructure.whisper_script_extractor import WhisperScriptExtractor
+from infrastructure.youtube_audio_downloader import YoutubeAudioDownloader
 from usecases.ask_questions_about_video import AskQuestionsAboutVideo
-from usecases.download_audio_from_video import DownloadAudioFromVideo
-from usecases.extract_script_from_audio import ExtractScriptFromAudio
+
+WORKING_DIR = "tmp_files"
+AUDIO_FILENAME = "audio.mp3"
 
 
 def main():
     youtube_url, whisper_model, language = check_args()
 
     video = Video(youtube_url, language)
+    audio_downloader = YoutubeAudioDownloader(WORKING_DIR, AUDIO_FILENAME)
+    script_extractor = WhisperScriptExtractor(whisper_model, WORKING_DIR, AUDIO_FILENAME)
+    qa_engine = LlamaQaEngine()
+    ask_questions_about_video = AskQuestionsAboutVideo(qa_engine, audio_downloader, script_extractor)
 
-    print("STEP 1 - DOWNLOAD AUDIO")
-    DownloadAudioFromVideo.execute(video, 'tmp_files/tmp.mp3')
-    print("STEP 2 - SCRIPT EXTRACTION")
-    ExtractScriptFromAudio.execute(whisper_model, video)
-    os.system('clear')
-    llm = AskQuestionsAboutVideo()
-    llm.finetune_with_video_script()
-    print("Hey welcome ! Ask me some questions about your video")
-    llm.interact()
+    ask_questions_about_video.execute(video)
 
 
-def check_args()->(str, str):
+def check_args() -> (str, str):
     parser = argparse.ArgumentParser(description="AskAVideo - Sytème de Q/A sur des vidéos")
     parser.add_argument("--youtube-url", required=True, help="URL de la vidéo YouTube à télécharger")
     parser.add_argument("--language", required=True, choices=["English", "French"],

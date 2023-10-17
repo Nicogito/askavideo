@@ -1,56 +1,43 @@
 import select
 import subprocess
 
+from domain.video import Video
+from usecases.ports.audio_downloader import AudioDownloader
+from usecases.ports.qa_engine import QaEngine
+from usecases.ports.script_extractor import ScriptExtractor
+
 
 class AskQuestionsAboutVideo:
-    def __init__(self):
-        self.llama = subprocess.Popen(["ollama", "run", "llama2"],
-                                      stdin=subprocess.PIPE,
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE,
-                                      universal_newlines=True,
-                                      bufsize=0
-                                      )
 
-    def finetune_with_video_script(self):
+    def __init__(self, qa_engine: QaEngine, audio_downloader: AudioDownloader, script_extractor: ScriptExtractor):
+        self.audio_downloader = audio_downloader
+        self.script_extractor = script_extractor
+        self.qa_engine = qa_engine
+
+    def give_video_script_to_qa_engine(self):
         query = "Le texte suivant est un script de vidéo. Je vais te poser différentes " \
                 "question concernant cette vidéo et je veux que tu me répondes selon le script donné. " \
                 "Le voici:"
 
-        with open("tmp_files/tmp.txt", "r") as file:
+        with open("tmp_files/audio.txt", "r") as file:
             video_script = ''.join(file.readlines()).replace("\n", "")
-        self.llama.stdin.write(query + video_script + "\n")
-        self.mute_response()
 
-    def interact(self):
+        self.qa_engine.send_message(query + video_script + "\n")
+        self.qa_engine.get_message()
+
+    def execute(self, video: Video):
+        self.audio_downloader.execute(video)
+        self.script_extractor.execute(video)
+        self.give_video_script_to_qa_engine()
+
         while True:
             query = input(">> ")
 
             if query == "exit":
-                self.close()
+                self.qa_engine.close()
                 return
             else:
-                self.llama.stdin.write(query.replace("\n", "") + "\n")
-                self.get_response()
+                self.qa_engine.send_message(query.replace("\n", "") + "\n")
+                self.qa_engine.get_message()
 
-    def close(self):
-        self.llama.stdin.close()
 
-    def get_response(self):
-        self.llama.stdout.readline()
-        self.llama.stdout.readline()
-        ready, _, _ = select.select([self.llama.stdout], [], [], 3)
-        line = ""
-        while ready and line is not None:
-            line = self.llama.stdout.readline()
-            print(line, end='')  # or do something with the line
-            ready, _, _ = select.select([self.llama.stdout], [], [], 3)
-
-    def mute_response(self):
-        self.llama.stdout.readline()
-        self.llama.stdout.readline()
-        ready, _, _ = select.select([self.llama.stdout], [], [], 3)
-        line = ""
-        while ready and line is not None:
-            line = self.llama.stdout.readline()
-            ready, _, _ = select.select([self.llama.stdout], [], [], 3)
