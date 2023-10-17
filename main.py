@@ -1,19 +1,24 @@
 import argparse
 
-from services.ask_about_video_through_llama import Llama
-from services.download_youtube_video import ExtractAudioFromYoutubeVideo
-from services.extract_script_from_audio import Whisper
+from domain.video import Video
 import os
+
+from usecases.ask_questions_about_video import AskQuestionsAboutVideo
+from usecases.download_audio_from_video import DownloadAudioFromVideo
+from usecases.extract_script_from_audio import ExtractScriptFromAudio
 
 
 def main():
     youtube_url, whisper_model, language = check_args()
+
+    video = Video(youtube_url, language)
+
     print("STEP 1 - DOWNLOAD AUDIO")
-    ExtractAudioFromYoutubeVideo.execute(youtube_url, 'tmp_files/tmp.mp3')
+    DownloadAudioFromVideo.execute(video, 'tmp_files/tmp.mp3')
     print("STEP 2 - SCRIPT EXTRACTION")
-    Whisper.execute(whisper_model, language)
+    ExtractScriptFromAudio.execute(whisper_model, video)
     os.system('clear')
-    llm = Llama()
+    llm = AskQuestionsAboutVideo()
     llm.finetune_with_video_script()
     print("Hey welcome ! Ask me some questions about your video")
     llm.interact()

@@ -2,15 +2,15 @@ import select
 import subprocess
 
 
-class Llama:
+class AskQuestionsAboutVideo:
     def __init__(self):
         self.llama = subprocess.Popen(["ollama", "run", "llama2"],
-                         stdin=subprocess.PIPE,
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE,
-                         universal_newlines=True,
-                         bufsize=0
-                         )
+                                      stdin=subprocess.PIPE,
+                                      stdout=subprocess.PIPE,
+                                      stderr=subprocess.PIPE,
+                                      universal_newlines=True,
+                                      bufsize=0
+                                      )
 
     def finetune_with_video_script(self):
         query = "Le texte suivant est un script de vidéo. Je vais te poser différentes " \
@@ -18,8 +18,8 @@ class Llama:
                 "Le voici:"
 
         with open("tmp_files/tmp.txt", "r") as file:
-            video_script = ''.join(file.readlines()).replace("\n","")
-        self.llama.stdin.write(query+ video_script + "\n")
+            video_script = ''.join(file.readlines()).replace("\n", "")
+        self.llama.stdin.write(query + video_script + "\n")
         self.mute_response()
 
     def interact(self):
@@ -30,7 +30,7 @@ class Llama:
                 self.close()
                 return
             else:
-                self.llama.stdin.write(query.replace("\n","")+"\n")
+                self.llama.stdin.write(query.replace("\n", "") + "\n")
                 self.get_response()
 
     def close(self):
@@ -54,6 +54,3 @@ class Llama:
         while ready and line is not None:
             line = self.llama.stdout.readline()
             ready, _, _ = select.select([self.llama.stdout], [], [], 3)
-
-
-
