@@ -1,7 +1,6 @@
 import argparse
 
 from domain.video import Video
-import os
 
 from infrastructure.llama_qa_engine import LlamaQaEngine
 from infrastructure.whisper_script_extractor import WhisperScriptExtractor

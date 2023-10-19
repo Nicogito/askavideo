@@ -23,11 +23,11 @@ class AskQuestionsAboutVideo:
             video_script = ''.join(file.readlines()).replace("\n", "")
 
         self.qa_engine.send_message(query + video_script + "\n")
-        self.qa_engine.get_message()
+        self.qa_engine.get_response()
 
     def execute(self, video: Video):
         self.audio_downloader.execute(video)
-        self.script_extractor.execute(video)
+        script = self.script_extractor.execute(video)
         self.give_video_script_to_qa_engine()
 
         while True:
@@ -38,6 +38,6 @@ class AskQuestionsAboutVideo:
                 return
             else:
                 self.qa_engine.send_message(query.replace("\n", "") + "\n")
-                self.qa_engine.get_message()
+                print(self.qa_engine.get_response())
 
 

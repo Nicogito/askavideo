@@ -9,7 +9,7 @@ class QaEngine(ABC):
         pass
 
     @abstractmethod
-    def get_message(self) -> None:
+    def get_response(self) -> str:
         pass
 
     @abstractmethod

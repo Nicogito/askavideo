@@ -14,14 +14,17 @@ class LlamaQaEngine(QaEngine):
                                       bufsize=0
                                       )
 
-    def get_message(self) -> None:
+    def get_response(self) -> str:
+        response = ""
         [self.llama.stdout.readline() for _ in range(2)]
-        ready, _, _ = select.select([self.llama.stdout], [], [], 3)
+        ready = True
         line = ""
         while ready and line is not None:
             line = self.llama.stdout.readline()
-            print(line, end='')
+            response += line
             ready, _, _ = select.select([self.llama.stdout], [], [], 3)
+        return response
+
 
     def send_message(self, message: str) -> None:
         self.llama.stdin.write(message.replace("\n", "") + "\n")
