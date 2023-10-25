@@ -1,5 +1,3 @@
-Bien sûr, voici un exemple de fichier README pour votre application "AskAVideo" en Python :
-
 # AskAVideo
 
 AskAVideo is a Python application designed for interacting with video content using the Llama2 LLM. With AskAVideo, you can easily extract information and insights from YouTube videos and other sources. This README will guide you through the setup and usage of the application.
