@@ -17,7 +17,7 @@ Follow these steps to get started with AskAVideo:
 2. Navigate to the project directory.
 
 ```bash
-cd AskAVideo
+cd askavideo
 ```
 
 3. Install the required dependencies:
