@@ -14,21 +14,18 @@ class AskQuestionsAboutVideo:
         self.script_extractor = script_extractor
         self.qa_engine = qa_engine
 
-    def give_video_script_to_qa_engine(self):
+    def give_video_script_to_qa_engine(self, script: str):
         query = "Le texte suivant est un script de vidéo. Je vais te poser différentes " \
                 "question concernant cette vidéo et je veux que tu me répondes selon le script donné. " \
                 "Le voici:"
 
-        with open("tmp_files/audio.txt", "r") as file:
-            video_script = ''.join(file.readlines()).replace("\n", "")
-
-        self.qa_engine.send_message(query + video_script + "\n")
+        self.qa_engine.send_message(query + script.replace("\n", "") + "\n")
         self.qa_engine.get_response()
 
     def execute(self, video: Video):
         self.audio_downloader.execute(video)
         script = self.script_extractor.execute(video)
-        self.give_video_script_to_qa_engine()
+        self.give_video_script_to_qa_engine(script)
 
         while True:
             query = input(">> ")
